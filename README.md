@@ -1,4 +1,4 @@
-A pure AS3 components for web/desktop development!(NOT FOR MOBILE)
+A pure AS3 components system for web/desktop development!(NOT FOR MOBILE)
 ------------------------------
 
 Every component is designed to work independently, and most of them 
