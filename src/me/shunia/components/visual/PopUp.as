@@ -12,7 +12,10 @@ package me.shunia.components.visual
 	 */	
 	public class PopUp
 	{
-		
+
+		public static const QUEUE_METHOD_ONE_BY_ONE:String = "oneByOne";
+		public static const QUEUE_METHOD_OVERRIDE:String = "override";
+
 		/**
 		 * PopUpItem管理类 
 		 */		
@@ -21,17 +24,24 @@ package me.shunia.components.visual
 		/**
 		 * 初始化方法,传入弹出层所在的父容器,模态状态下的背景色和透明度.
 		 *  
-		 * @param parent
-		 * @param modalColor
-		 * @param modalAlpha
+		 * @param parent 此控件弹出任何窗口时针对的顶级显示对象,一般情况下应设置为stage(舞台)
+		 * @param modalColor 模态窗口的背景色
+		 * @param modalAlpha 模态窗口的背景透明度
 		 */		
-		public static function init(parent:DisplayObjectContainer, modalColor:uint = 0, modalAlpha:Number = 0.4):void {
+		public static function init(parent:DisplayObjectContainer, queueMethod:String, modalColor:uint = 0, modalAlpha:Number = 0.4):void {
 			_manager = new InternalPopupManager();
 			_manager.parent = parent;
 			PopUpItem.modalColor = modalColor;
 			PopUpItem.modalAlpha = modalAlpha;
 		}
-		
+
+		/**
+		 * 创建一个待弹出窗口,这个方法不会弹出该窗口.
+		 *
+		 * @param view 待弹出显示对象
+		 *
+		 * @return int 返回已经创建好的弹出窗口对应的id,用来后续操作
+		 * */
 		public static function create(view:DisplayObject):int {
 			return _manager.add(view);
 		}
@@ -371,7 +381,7 @@ class PopUpItem
 	 * 更新模态窗口 
 	 */	
 	protected function updateModal():void {
-		if (!modal) {
+		if (!_modal) {
 			_modal = new Sprite();
 			_modal.mouseEnabled = _modal.mouseChildren = false;
 			_modal.graphics.beginFill(modalColor, modalAlpha);

@@ -82,7 +82,7 @@ package me.shunia.components {
 			return _bg;
 		}
 		
-		public function set backgroudColor(value:uint):void {
+		public function set backgroundColor(value:uint):void {
 			_defaultPaintColor = value;
 		}
 		
