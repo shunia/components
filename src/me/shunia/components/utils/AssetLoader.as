@@ -240,6 +240,15 @@ package me.shunia.components.utils {
 		}
 		
 		protected function postResult(data:ByteArray):void {
+			// 假如不提供完成回调函数,也就意味着并不需要解析,在之前已经把这次的加载数据缓存起来了
+			// 所以这里断开后续操作
+			var onComplete:Function = _acceptedOptions["onComplete"];
+			if (onComplete == null) {
+				_data = data;
+				return;
+			}
+
+			// 准备解析成显示对象
 			var ext:String = ext,
 				swfKey:String = _acceptedOptions["swfKey"];
 			data = cloneBytes(data);

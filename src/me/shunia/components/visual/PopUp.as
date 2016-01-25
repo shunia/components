@@ -13,8 +13,8 @@ package me.shunia.components.visual
 	public class PopUp
 	{
 
-		public static const QUEUE_METHOD_ONE_BY_ONE:String = "oneByOne";
-		public static const QUEUE_METHOD_OVERRIDE:String = "override";
+//		public static const QUEUE_METHOD_ONE_BY_ONE:String = "oneByOne";
+//		public static const QUEUE_METHOD_OVERRIDE:String = "override";
 
 		/**
 		 * PopUpItem管理类 
@@ -28,7 +28,7 @@ package me.shunia.components.visual
 		 * @param modalColor 模态窗口的背景色
 		 * @param modalAlpha 模态窗口的背景透明度
 		 */		
-		public static function init(parent:DisplayObjectContainer, queueMethod:String, modalColor:uint = 0, modalAlpha:Number = 0.4):void {
+		public static function init(parent:DisplayObjectContainer, modalColor:uint = 0, modalAlpha:Number = 0.4):void {
 			_manager = new InternalPopupManager();
 			_manager.parent = parent;
 			PopUpItem.modalColor = modalColor;

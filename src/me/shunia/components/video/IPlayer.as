@@ -2,6 +2,8 @@ package me.shunia.components.video
 {
 
 	import flash.media.Video;
+	import flash.net.NetConnection;
+	import flash.net.NetStream;
 
 	/**
 	 * 视频播放器的接口
@@ -53,5 +55,13 @@ package me.shunia.components.video
 		 * 当前是否正在播放
 		 * */
 		function get playing():Boolean;
+		/**
+		 * 当前的视频流对象
+		 * */
+		function get netStream():NetStream;
+		/**
+		 * 当前视频流连接
+		 * */
+		function get netConnection():NetConnection;
 	}
 }

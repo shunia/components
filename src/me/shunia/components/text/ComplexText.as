@@ -13,9 +13,9 @@ package me.shunia.components.text {
 
 	public class ComplexText extends Panel {
 		
-		protected var _allLineConfigurations:Vector.<IComplexTextLine> = null;
+		protected var _allLineConfigurations:Array = null;
 		
-		protected var _queuedLineConfigurations:Vector.<IComplexTextLine> = null;
+		protected var _queuedLineConfigurations:Array = null;
 		
 		protected var _allLineComponents:Vector.<DisplayObject> = null;
 		
@@ -37,9 +37,9 @@ package me.shunia.components.text {
 			layout.type = Layout.VERTICAL;
 			layout.vGap = 2;
 
-			_queuedLineConfigurations = new <IComplexTextLine>[];
+			_queuedLineConfigurations = [];
 			_allLineComponents = new <DisplayObject>[];
-			_allLineConfigurations = new <IComplexTextLine>[];
+			_allLineConfigurations = [];
 		}
 
 		public function set style(value:ComplexTextStyle):void {
@@ -181,7 +181,7 @@ class Convinient {
 		if (args.length == 0) return null;
 
 		var joined:Vector.<IComplexTextLine> = new <IComplexTextLine>[];
-		for (var i:int = 0, l = args.length; i < l; i ++) {
+		for (var i:int = 0, l:int = args.length; i < l; i ++) {
 			if (args[i] is IComplexTextLine) {
 				joined.push(args[i]);
 			}
@@ -312,6 +312,8 @@ class ComplexTextLineRender {
 			tl = t.createTextLine(tl, style.width);
 		}
 
+		t.releaseLineCreationData();
+
 		return p;
 	}
 
@@ -355,19 +357,24 @@ class ComplexTextLineRender {
 	}
 
 	protected static function configToElement(config:IComplexTextLine, style:ComplexTextStyle):ContentElement {
+		var fds:FontDescription = null;
+		var fmt:ElementFormat = null;
 		if (config is IComplexTextLineText) {
 			var textConfig:ComplexTextLineTextImplementation = config as ComplexTextLineTextImplementation;
 			if (textConfig && textConfig.content) {
-				var fds:FontDescription = new FontDescription(
+				fds = new FontDescription(
 						textConfig.fontFamily ? textConfig.fontFamily : style.fontFamily,
 						textConfig.fontBold ? "bold" : "normal");
-				var fmt:ElementFormat = new ElementFormat(fds, textConfig.fontSize, textConfig.fontColor);
+				fmt = new ElementFormat(fds, textConfig.fontSize, textConfig.fontColor);
 				return new TextElement(textConfig.content, fmt);
 			}
 		} else if (config is IComplexTextLineGraphic) {
 			var graphicConfig:ComplexTextLineGraphicImplementation = config as ComplexTextLineGraphicImplementation;
 			if (graphicConfig && graphicConfig.content) {
-				return new GraphicElement(graphicConfig.content, graphicConfig.width, graphicConfig.height);
+				fds = new FontDescription(style.fontFamily, style.fontBold ? FontWeight.BOLD : FontWeight.NORMAL);
+				fmt = new ElementFormat(fds, style.fontSize, style.fontColor);
+				fmt.alignmentBaseline = TextBaseline.DESCENT;
+				return new GraphicElement(graphicConfig.content, graphicConfig.width, graphicConfig.height, fmt);
 			}
 		}
 		return null;

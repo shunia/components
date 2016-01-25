@@ -29,15 +29,10 @@ package me.shunia.components {
 			mouseEnabled = false;
 	    }
 		
-		override public function set width(value:Number):void {
-			super.width = value;
-			
+		public function set maxWidth(value:Number):void {
 			_w = value;
+			_trim = true;
 			trimCheck();
-		}
-		
-		override public function get width():Number {
-			return _w ? _w : super.width;
 		}
 		
 		public function set color(value:uint):void {
@@ -120,7 +115,7 @@ package me.shunia.components {
 		 * @param value
 		 */		
 		public function set trimRpl(value:String):void {
-			_trimRpl = value ? value : " ";
+			_trimRpl = value ? value : "...";
 			trimCheck();
 		}
 		
@@ -132,16 +127,9 @@ package me.shunia.components {
 				
 				var t:String = _text, 
 					w:Number = getTextWidth(t), 
-					r:String = w < _w ? " " : _trimRpl, 
+					r:String = _trimRpl,
 					rw:Number = getTextWidth(r);
-				if (w > _w || (w + rw) > _w) {
-					// 缩短原文字长度,并在最后填充 _trimRpl 以补足长度
-					while ((w + rw) > _w) {
-						t = t.substr(0, t.length - 1);
-						w = getTextWidth(t);
-					}
-					text = t + r;
-				} else if (w < _w) {
+				if (w < _w) {
 					text = _text;
 					// 在原文字内容后填充空格以补足长度,目前不使用
 //					while ((w + rw) <= _w) {
@@ -149,6 +137,13 @@ package me.shunia.components {
 //						w = getTextWidth(t);
 //					}
 //					text = t;
+				} else if (w > _w || (w + rw) > _w) {
+					// 缩短原文字长度,并在最后填充 _trimRpl 以补足长度
+					while ((w + rw) > _w) {
+						t = t.substr(0, t.length - 1);
+						w = getTextWidth(t);
+					}
+					text = t + r;
 				}
 				_trimChecking = false;
 			}

@@ -4,24 +4,31 @@ package me.shunia.components.video
 	import flash.display.Sprite;
 	import flash.media.SoundTransform;
 	import flash.media.Video;
+	import flash.net.NetConnection;
+	import flash.net.NetStream;
 
 	public class Player extends Sprite implements IPlayer
 	{
-		
+
+		public static const MODE_PLAY:String = "play";
+		public static const MODE_PUBLISH:String = "publish";
+
 		protected var _video:Video = null;
 		protected var _controller:Controller = null;
 		protected var _volume:int = 100;
 		protected var _isRTMP:Boolean = false;
 		protected var _isPaused:Boolean = false;
 		protected var _isStopped:Boolean = false;
-		
+		protected var _mode:String = MODE_PLAY;
+
 		public function Player(w:int = 320, h:int = 240)
 		{
 			_video = new Video(w, h);
+			_video.smoothing = true;
 			addChild(_video);
 			_controller = new Controller(infoHandler);
 		}
-		
+
 		protected function infoHandler(status:String):void {
 			switch (status) {
 				case Controller.STATUS_CONNECTED :
@@ -35,6 +42,9 @@ package me.shunia.components.video
 					break;
 				case Controller.STATUS_CLOSED :
 					onClosed();
+					break;
+				case Controller.STATUS_PUBLISHED :
+					onPublishded();
 					break;
 				default :
 					dispatchEvent(new PlayerEvent(PlayerEvent.INFO, {info: status}));
@@ -61,13 +71,17 @@ package me.shunia.components.video
 
 		}
 
+		protected function onPublishded():void {
+
+		}
+
 		public function dispose():void {
 			_video.visible = false;
 			_controller.stop(true);
 			_video.attachNetStream(null);
 			_isStopped = true;
 		}
-		
+
 		public function pause():void {
 			if (playing) {
 				_isPaused = true;
@@ -75,59 +89,74 @@ package me.shunia.components.video
 					_controller.stream.pause();
 			}
 		}
-		
+
 		public function play(url:String = null):void {
+			_mode = MODE_PLAY;
+			init(url);
+		}
+
+		public function publish(url:String = null):void {
+			_mode = MODE_PUBLISH;
+			init(url);
+		}
+
+		protected function init(url:String):void {
 			if (url && url.length) {
 				// 如果正在播,先停止
-				if (playing) 
+				if (playing)
 					dispose();
 				// 更新标记
 				_isRTMP = url.substr(0, 7).toLowerCase() === "rtmp://";
 				_isPaused = false;
 				_isStopped = false;
-				
+
 				var linkAndMountPoint:Array = splitPlayURL(url, _isRTMP);
-				if (linkAndMountPoint && linkAndMountPoint.length) 
-					// 启动播放
-					_controller.start(linkAndMountPoint[0], linkAndMountPoint[1]);
+				if (linkAndMountPoint && linkAndMountPoint.length)
+				// 启动播放
+					_controller.start(linkAndMountPoint[0], linkAndMountPoint[1], mode == MODE_PUBLISH);
 			} else if (_isPaused) {
-				if (_controller.stream) 
+				if (_controller.stream)
 					_controller.stream.resume();
 				_isPaused = false;
 			}
 		}
-		
+
 		protected function splitPlayURL(url:String, isRTMP:Boolean):Array {
 			if (isRTMP) {
 				var i:int = url.lastIndexOf("/");
-				if (i != -1) 
+				if (i != -1)
 					return [url.substring(0, i), url.substring(i + 1, url.length)];
-			} else 
+			} else
 				return [null, url];
-			
+
 			return null;
 		}
-		
+
 		public function seek(offset:int):void {
+			if (mode == MODE_PUBLISH) return;
 //			if (!_isRTMP) {
 //
 //			}
 		}
-		
+
 		public function get playing():Boolean {
-			if (_controller.connection && _controller.connection.connected) 
+			if (_controller.connection && _controller.connection.connected)
 				return !_isStopped && !_isPaused;
-			else 
+			else
 				return false;
 		}
-		
+
+		public function get mode():String {
+			return _mode;
+		}
+
 		public function stop():void {
 			if (playing) {
 				_controller.stop(false);
 			}
 			_isStopped = true;
 		}
-		
+
 		public function get video():Video {
 			return _video;
 		}
@@ -151,6 +180,14 @@ package me.shunia.components.video
 				_controller.stream.soundTransform = st;
 			}
 		}
+
+		public function get netStream():NetStream {
+			return _controller.stream;
+		}
+
+		public function get netConnection():NetConnection {
+			return _controller.connection;
+		}
 	}
 }
 
@@ -160,6 +197,7 @@ import flash.events.NetStatusEvent;
 import flash.events.SecurityErrorEvent;
 import flash.net.NetConnection;
 import flash.net.NetStream;
+import flash.net.ObjectEncoding;
 
 class Controller {
 
@@ -167,6 +205,7 @@ class Controller {
 	public static const STATUS_STARTED:String = "status_started";
 	public static const STATUS_CLOSED:String = "status_closed";
 	public static const STATUS_BUFFERED:String = "status_buffered";
+	public static const STATUS_PUBLISHED:String = "status_published";
 
 	protected var _invoker:Function = null;
 	protected var _skipInvoke:Boolean = false;
@@ -174,28 +213,45 @@ class Controller {
 
 	protected var _link:String = null;
 	protected var _mountPoint:String = null;
+	protected var _publish:Boolean = false;
 
 	public var stream:NetStream = null;
 	public var connection:NetConnection = null;
 
 	public function Controller(invoker:Function) {
 		_invoker = invoker;
+	}
+
+	protected function initConnection():void {
 		connection = new NetConnection();
 		connection.addEventListener(NetStatusEvent.NET_STATUS, onConnectionStatus);
 		connection.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onError);
 		connection.addEventListener(IOErrorEvent.IO_ERROR, onError);
 		connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onError);
 		connection.client = {};
+
+		// 为了兼容内网srs系统
+		connection.objectEncoding = ObjectEncoding.AMF0;
+
+		connection.connect(_link);
 	}
 
-	public function start(link:String = null, mountPoint:String = null):void {
+	/**
+	 * 启动Controler.
+	 *
+	 * @param link
+	 * @param mountPoint
+	 * @param publish
+	 * */
+	public function start(link:String = null, mountPoint:String = null, publish:Boolean = false):void {
 		_link = link;
 		_mountPoint = mountPoint;
+		_publish = publish;
 
 		invoke([_link, _mountPoint].join(","));
 
 		stopConnection();
-		connection.connect(_link);
+		initConnection();
 	}
 
 	public function stop(dispose:Boolean = false):void {
@@ -204,7 +260,7 @@ class Controller {
 	}
 
 	protected function stopConnection():void {
-		if (connection.connected) {
+		if (connection && connection.connected) {
 			_skipInvoke = true;
 			connection.close();
 		}
@@ -239,10 +295,18 @@ class Controller {
 			case "NetConnection.Connect.Success" :
 				initStream();
 				invoke(STATUS_CONNECTED);
+
+				// 根据推拉流标记决定是拉流还是推流
+				if (_publish) {
+					stream.publish(_mountPoint);
+				} else {
+					stream.play(_mountPoint);
+				}
 				break;
 			default :
 				// NetConnection断了的话重试
-				initStream();
+				stopConnection();
+				initConnection();
 				break;
 		}
 	}
@@ -265,6 +329,10 @@ class Controller {
 				if (_firstBuff)
 					invoke(STATUS_BUFFERED);
 				break;
+
+			case "NetStream.Publish.Start" :
+				invoke(STATUS_PUBLISHED);
+				break;
 		}
 	}
 
@@ -280,8 +348,6 @@ class Controller {
 		stream.addEventListener(NetStatusEvent.NET_STATUS, onStreamStatus);
 		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onError);
 		stream.addEventListener(IOErrorEvent.IO_ERROR, onError);
-
-		stream.play(_mountPoint);
 	}
 
 	protected function invoke(status:String):void {
