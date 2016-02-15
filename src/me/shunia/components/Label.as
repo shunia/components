@@ -22,6 +22,7 @@ package me.shunia.components {
 			_fmt = new TextFormat();
 			_fmt.color = 0;
 			_fmt.font = "Microsoft YaHei,微软雅黑,宋体";
+		    _fmt.size = 12;
 	        this.defaultTextFormat = _fmt;
 			
 			autoSize = TextFieldAutoSize.LEFT;

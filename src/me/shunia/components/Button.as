@@ -25,7 +25,6 @@ package me.shunia.components
 		
 		protected var _enabled:Boolean = true;
 		protected var _label:Label = null;
-		protected var _labelStr:String = "";
 		protected var _labelSize:int = 12;
 		protected var _labelColor:uint = 0xFFFFFF;
 		protected var _state:StateWrapper = null;
@@ -33,6 +32,9 @@ package me.shunia.components
 		protected var _on:Function = null;
 		protected var _onStates:Array = null;
 		protected var _selected:Boolean = false;
+
+		protected var _widthDirty:Boolean = false;
+		protected var _heightDirty:Boolean = false;
 		
 		public function Button()
 		{
@@ -72,6 +74,12 @@ package me.shunia.components
 		public function set label(value:String):void {
 			if (value && _label) {
 				_label.text = value;
+				if (!_widthDirty) {
+					_state.width = _label.width;
+				}
+				if (!_heightDirty) {
+					_state.height = _label.height;
+				}
                 if (!contains(_label))
     				add(_label);
                 else
@@ -186,11 +194,13 @@ package me.shunia.components
 		}
 		
 		override public function set width(value:Number):void {
+			_widthDirty = true;
 			_state.width = value;
 			super.width = value;
 		}
 		
 		override public function set height(value:Number):void {
+			_heightDirty = true;
 			_state.height = value;
 			super.height = value;
 		}
@@ -199,6 +209,7 @@ package me.shunia.components
 }
 
 import flash.display.DisplayObject;
+import flash.display.Graphics;
 import flash.display.MovieClip;
 import flash.display.Shape;
 import flash.display.Sprite;
@@ -213,15 +224,14 @@ class StateWrapper extends Sprite {
 	public static const DISABLED:int = 4;
 	
 	protected static const DRAW_STYLE:Array = [
-		{}, 
-		{"color": 0xCCCCCC, "alpha": 1, "corner": 7},  
-		{"color": 0xDDDDDD, "alpha": 1, "corner": 7}, 
-		{"color": 0xBBBBBB, "alpha": 1, "corner": 7}, 
-		{"color": 0xEEEEEE, "alpha": 1, "corner": 7}
+		{"color": 0x111111, "alpha": 1, "corner": 5},
+		{"color": 0x222222, "alpha": 1, "corner": 5},
+		{"color": 0x333333, "alpha": 1, "corner": 5},
+		{"color": 0x444444, "alpha": 1, "corner": 5}
 	];
 	
 	protected var _asset:Dictionary = new Dictionary();
-	
+
 	protected var _state:int = UP;
 	protected var _prevState:int = UP;
 	protected var _w:Number = 0;
@@ -256,8 +266,12 @@ class StateWrapper extends Sprite {
 	protected function switchState():void {
 		var asset:DisplayObject = getCurrentAsset();
 		if (asset) {
-			if (_w) asset.width = _w;
-			if (_h) asset.height = _h;
+			if (asset is BtnShapeForState) {
+				drawStyle(asset["graphics"], _state);
+			} else {
+				if (_w) asset.width = _w;
+				if (_h) asset.height = _h;
+			}
 			if (!contains(asset)) {
 				while (numChildren) removeChildAt(0);
 				addChildAt(asset, 0);
@@ -270,8 +284,9 @@ class StateWrapper extends Sprite {
 			_asset[ALL].gotoAndStop(_state);
 			return _asset[ALL];
 		} else {
-			if (!_asset.hasOwnProperty(String(_state)) || !_asset[_state])
+			if (!_asset.hasOwnProperty(String(_state)) || !_asset[_state]) {
 				_asset[_state] = draw(_state);
+			}
 			return _asset[_state];
 		}
 	}
@@ -285,22 +300,33 @@ class StateWrapper extends Sprite {
 	}
 	
 	protected function draw(state:int):Shape {
-		var style:Object = DRAW_STYLE[state];
-		var s:Shape = new Shape();
-		s.graphics.beginFill(style.color, style.alpha);
-		s.graphics.drawRoundRect(0, 0, 30, 24, style.corner, style.corner);
-		s.graphics.endFill();
+		var s:BtnShapeForState = new BtnShapeForState();
+		drawStyle(s.graphics, state);
 		return s;
+	}
+
+	protected function drawStyle(g:Graphics, state:int):void {
+		var style:Object = DRAW_STYLE[state - 1];
+		g.clear();
+		g.beginFill(style.color, style.alpha);
+		g.drawRoundRect(0, 0, _w, _h, style.corner, style.corner);
+		g.endFill();
 	}
 	
 	override public function set width(value:Number):void {
 		_w = value;
-		if (_w && numChildren) getChildAt(0).width = _w;
+		if (_w && numChildren)
+			switchState();
 	}
 	
 	override public function set height(value:Number):void {
 		_h = value;
-		if (_h && numChildren) getChildAt(0).height = _h;
+		if (_h && numChildren)
+			switchState();
 	}
 	
+}
+
+class BtnShapeForState extends Shape {
+
 }

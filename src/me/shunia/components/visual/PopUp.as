@@ -20,6 +20,7 @@ package me.shunia.components.visual
 		 * PopUpItem管理类 
 		 */		
 		protected static var _manager:InternalPopupManager = null;
+		protected static var _parent:DisplayObjectContainer = null;
 		
 		/**
 		 * 初始化方法,传入弹出层所在的父容器,模态状态下的背景色和透明度.
@@ -30,7 +31,7 @@ package me.shunia.components.visual
 		 */		
 		public static function init(parent:DisplayObjectContainer, modalColor:uint = 0, modalAlpha:Number = 0.4):void {
 			_manager = new InternalPopupManager();
-			_manager.parent = parent;
+			_parent = parent;
 			PopUpItem.modalColor = modalColor;
 			PopUpItem.modalAlpha = modalAlpha;
 		}
@@ -42,12 +43,12 @@ package me.shunia.components.visual
 		 *
 		 * @return int 返回已经创建好的弹出窗口对应的id,用来后续操作
 		 * */
-		public static function create(view:DisplayObject):int {
-			return _manager.add(view);
+		public static function create(view:DisplayObject, parent:DisplayObjectContainer = null):int {
+			return _manager.add(view, parent);
 		}
 		
-		public static function center(view:DisplayObject, modal:Boolean = true):int {
-			var id:int = create(view);
+		public static function center(view:DisplayObject, parent:DisplayObjectContainer = null, modal:Boolean = true):int {
+			var id:int = create(view, parent ? parent : _parent);
 			get(id).mode = PopUpItem.MODE_RELATIVE;
 			get(id).center = true;
 			get(id).modal = modal;
@@ -55,8 +56,8 @@ package me.shunia.components.visual
 			return id;
 		}
 		
-		public static function to(view:DisplayObject, anchor:DisplayObject, offsetX:Number = 0, offsetY:Number = 0):int {
-			var id:int = create(view);
+		public static function to(view:DisplayObject, parent:DisplayObjectContainer = null, anchor:DisplayObject = null, offsetX:Number = 0, offsetY:Number = 0):int {
+			var id:int = create(view, parent ? parent : _parent);
 			get(id).mode = PopUpItem.MODE_ANCHOR;
 			get(id).anchor = anchor;
 			get(id).offsetX = offsetX;
@@ -65,8 +66,8 @@ package me.shunia.components.visual
 			return id;
 		}
 		
-		public static function pos(view:DisplayObject, position:Point, offsetX:Number = 0, offsetY:Number = 0):int {
-			var id:int = create(view);
+		public static function pos(view:DisplayObject, parent:DisplayObjectContainer = null, position:Point = null, offsetX:Number = 0, offsetY:Number = 0):int {
+			var id:int = create(view, parent ? parent : _parent);
 			get(id).mode = PopUpItem.MODE_ANCHOR;
 			get(id).position = position;
 			get(id).offsetX = offsetX;
@@ -101,8 +102,16 @@ package me.shunia.components.visual
 		public static function dispose(id:int):void {
 			var item:PopUpItem = get(id);
 			if (item) {
+				dismiss(id);
 				item.dispose();
 				_manager.remove(item);
+			}
+		}
+
+		public static function clear():void {
+			var ids:Array = _manager.getAllID();
+			for (var i:int = 0, l:int = ids.length; i < l; i ++) {
+				dispose(ids[i]);
 			}
 		}
 		
@@ -112,6 +121,7 @@ package me.shunia.components.visual
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 import flash.display.Sprite;
+import flash.display.Stage;
 import flash.display.Stage;
 import flash.events.Event;
 import flash.events.MouseEvent;
@@ -124,8 +134,6 @@ class InternalPopupManager {
 	protected static var _id:int = 0;
 	
 	internal var popsDict:Dictionary = new Dictionary();
-	
-	public var parent:DisplayObjectContainer = null;
 	
 	internal function g(id:int):PopUpItem {
 		var item:PopUpItem = popsDict.hasOwnProperty(String(id)) ? popsDict[id] : null;
@@ -143,7 +151,7 @@ class InternalPopupManager {
 		return item;
 	}
 	
-	internal function add(view:DisplayObject):int {
+	internal function add(view:DisplayObject, parent:DisplayObjectContainer):int {
 		var item:PopUpItem = getByView(view);
 		if (!item) {
 			item = new PopUpItem();
@@ -167,6 +175,14 @@ class InternalPopupManager {
 	
 	protected function getId():int {
 		return _id ++;
+	}
+
+	internal function getAllID():Array {
+		var arr:Array = [];
+		for (var k:* in popsDict) {
+			arr.push(k);
+		}
+		return arr;
 	}
 	
 }
@@ -403,8 +419,8 @@ class PopUpItem
 		}
 		
 		if (parent.contains(_modal)) {
-			_modal.width = stage ? stage.stageWidth : parent.width;
-			_modal.height = stage ? stage.stageHeight : parent.height;
+			_modal.width = parent is Stage ? stage.stageWidth : parent.width;
+			_modal.height = parent is Stage ? stage.stageHeight : parent.height;
 		}
 	}
 	
