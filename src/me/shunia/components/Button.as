@@ -74,12 +74,9 @@ package me.shunia.components
 		public function set label(value:String):void {
 			if (value && _label) {
 				_label.text = value;
-				if (!_widthDirty) {
-					_state.width = _label.width;
-				}
-				if (!_heightDirty) {
-					_state.height = _label.height;
-				}
+				_state.labelWidth = _label.width;
+				_state.labelHeight = _label.height;
+
                 if (!contains(_label))
     				add(_label);
                 else
@@ -192,7 +189,7 @@ package me.shunia.components
 				_on.apply(this, args);
 			}
 		}
-		
+
 		override public function set width(value:Number):void {
 			_widthDirty = true;
 			_state.width = value;
@@ -235,7 +232,17 @@ class StateWrapper extends Sprite {
 	protected var _state:int = UP;
 	protected var _prevState:int = UP;
 	protected var _w:Number = 0;
+	protected var _labelWidth:Number = 0;
 	protected var _h:Number = 0;
+	protected var _labelHeight:Number = 0;
+
+	public function get state():int {
+		return _state;
+	}
+
+	public function get prevState():int {
+		return _prevState;
+	}
 	
 	public function setAsset(state:int, asset:*):void {
 		var parsed:DisplayObject = parseAsset(asset);
@@ -291,14 +298,6 @@ class StateWrapper extends Sprite {
 		}
 	}
 	
-	public function get state():int {
-		return _state;
-	}
-	
-	public function get prevState():int {
-		return _prevState;
-	}
-	
 	protected function draw(state:int):Shape {
 		var s:BtnShapeForState = new BtnShapeForState();
 		drawStyle(s.graphics, state);
@@ -309,7 +308,13 @@ class StateWrapper extends Sprite {
 		var style:Object = DRAW_STYLE[state - 1];
 		g.clear();
 		g.beginFill(style.color, style.alpha);
-		g.drawRoundRect(0, 0, _w, _h, style.corner, style.corner);
+		g.drawRoundRect(
+				0,
+				0,
+				_w ? _w : _labelWidth ? _labelWidth : 30,
+				_h ? _h : _labelHeight ? _labelHeight : 20,
+				style.corner,
+				style.corner);
 		g.endFill();
 	}
 	
@@ -323,6 +328,14 @@ class StateWrapper extends Sprite {
 		_h = value;
 		if (_h && numChildren)
 			switchState();
+	}
+
+	public function set labelWidth(value:Number):void {
+		_labelWidth = value;
+	}
+
+	public function set labelHeight(value:Number):void {
+		_labelHeight = value;
 	}
 	
 }

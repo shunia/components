@@ -47,7 +47,7 @@ package me.shunia.components.visual
 			return _manager.add(view, parent);
 		}
 		
-		public static function center(view:DisplayObject, parent:DisplayObjectContainer = null, modal:Boolean = true):int {
+		public static function center(view:DisplayObject, modal:Boolean = true, parent:DisplayObjectContainer = null):int {
 			var id:int = create(view, parent ? parent : _parent);
 			get(id).mode = PopUpItem.MODE_RELATIVE;
 			get(id).center = true;
@@ -56,7 +56,7 @@ package me.shunia.components.visual
 			return id;
 		}
 		
-		public static function to(view:DisplayObject, parent:DisplayObjectContainer = null, anchor:DisplayObject = null, offsetX:Number = 0, offsetY:Number = 0):int {
+		public static function to(view:DisplayObject, anchor:DisplayObject = null, offsetX:Number = 0, offsetY:Number = 0, parent:DisplayObjectContainer = null):int {
 			var id:int = create(view, parent ? parent : _parent);
 			get(id).mode = PopUpItem.MODE_ANCHOR;
 			get(id).anchor = anchor;
@@ -66,7 +66,7 @@ package me.shunia.components.visual
 			return id;
 		}
 		
-		public static function pos(view:DisplayObject, parent:DisplayObjectContainer = null, position:Point = null, offsetX:Number = 0, offsetY:Number = 0):int {
+		public static function pos(view:DisplayObject, position:Point = null, offsetX:Number = 0, offsetY:Number = 0, parent:DisplayObjectContainer = null):int {
 			var id:int = create(view, parent ? parent : _parent);
 			get(id).mode = PopUpItem.MODE_ANCHOR;
 			get(id).position = position;
