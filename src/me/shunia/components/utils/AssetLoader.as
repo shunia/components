@@ -287,7 +287,7 @@ package me.shunia.components.utils {
 					break;
 				case EXT_IMAGE :
 						new IMAGEParser(ba, onComplete);
-					break
+					break;
 				case EXT_GIF :
 						new GIFParser(ba, onComplete);
 					break;
@@ -357,6 +357,8 @@ package me.shunia.components.utils {
 import com.worlize.gif.GIFPlayer;
 import com.worlize.gif.events.AsyncDecodeErrorEvent;
 import com.worlize.gif.events.GIFPlayerEvent;
+
+import flash.display.Bitmap;
 
 import flash.display.DisplayObject;
 import flash.display.Loader;
@@ -551,6 +553,7 @@ class IMAGEParser extends BaseParser{
 		// 侦听Event.COMPLETE事件
 		info.addEventListener(Event.COMPLETE, function (e:Event):void {
 			var display:DisplayObject = toDisplay(e.target as LoaderInfo);
+			if (display is Bitmap) (display as Bitmap).smoothing = true;
 			if (display)
 				result(display);
 		});

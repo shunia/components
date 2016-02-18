@@ -14,7 +14,8 @@ package me.shunia.components {
 		protected var _text:String = "";
 		protected var _trimRpl:String = "...";
 		protected var _trimChecking:Boolean = false;
-		protected var _w:Number = 0;
+		protected var _maxWidth:Number = 0;
+		protected var _actualWidth:Number = 0;
 		
 	    public function Label() {
 			super();
@@ -31,7 +32,14 @@ package me.shunia.components {
 	    }
 		
 		public function set maxWidth(value:Number):void {
-			_w = value;
+			_maxWidth = value;
+			_trim = true;
+			trimCheck();
+		}
+
+		override public function set width(value:Number):void {
+			super.width = value;
+			_actualWidth = value;
 			_trim = true;
 			trimCheck();
 		}
@@ -123,31 +131,50 @@ package me.shunia.components {
 		protected function trimCheck():void {
 			if (_trimChecking) return;
 			// 只有需要自动省略,并且存在文字内容,并且设定了宽度才能触发逻辑
-			if (_trim && _text && _w) {
+			if (_trim && _text) {
 				_trimChecking = true;
-				
-				var t:String = _text, 
-					w:Number = getTextWidth(t), 
-					r:String = _trimRpl,
-					rw:Number = getTextWidth(r);
-				if (w < _w) {
-					text = _text;
-					// 在原文字内容后填充空格以补足长度,目前不使用
-//					while ((w + rw) <= _w) {
-//						t += r;
-//						w = getTextWidth(t);
-//					}
-//					text = t;
-				} else if (w > _w || (w + rw) > _w) {
-					// 缩短原文字长度,并在最后填充 _trimRpl 以补足长度
-					while ((w + rw) > _w) {
-						t = t.substr(0, t.length - 1);
-						w = getTextWidth(t);
-					}
-					text = t + r;
+
+				var t:String = _text,
+					w:Number = getTextWidth(t);
+				if (_actualWidth > 0 && w < _actualWidth) {
+					append(t, w);
+				} else if (_maxWidth > 0 && w > _maxWidth) {
+					deduct(t, w);
 				}
 				_trimChecking = false;
 			}
+		}
+
+		/**
+		 * 在原文字内容后填充空格以补足长度
+		 *
+		 * @param t
+		 * @param originalWidth
+		 * */
+		protected function append(t:String, originalWidth:Number):void {
+			var r:String = "  ",
+				rw:Number = getTextWidth(r);
+			while ((originalWidth + rw) < _actualWidth) {
+				t += r;
+				originalWidth = getTextWidth(t);
+			}
+			text = t;
+		}
+
+		/**
+		 * 缩短原文字长度,并在最后填充 _trimRpl 以补足长度
+		 *
+		 * @param t
+		 * @param originalWidth
+		 * */
+		protected function deduct(t:String, originalWidth:Number):void {
+			var r:String = _trimRpl,
+				rw:Number = getTextWidth(r);
+			while ((originalWidth + rw) > _maxWidth) {
+				t = t.substr(0, t.length - 1);
+				originalWidth = getTextWidth(t);
+			}
+			text = t + r;
 		}
 		
 		protected function getTextWidth(t:String):Number {

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<project>
+    <!-- setup FLEX_HOME -->
+    <property environment="env"/>
+    <condition property="FLEX_HOME" value="${env.FLEX_HOME}">
+        <isset property="env.FLEX_HOME"/>
+    </condition>
+    <condition property="FLEX_HOME" value="${env.AIR_HOME}">
+        <isset property="env.AIR_HOME"/>
+    </condition>
+    <!-- default location for windows -->
+    <property name="FLEX_HOME" value="C:\Program Files\Adobe\Adobe Flash Builder 4.7 (64 Bit)\sdks\air"/>
+
+    <!-- location of ant task lib -->
+    <taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar"/>
+
+    <echo message="[${ant.project.name}] Using SDK: ${FLEX_HOME}"/>
+</project>

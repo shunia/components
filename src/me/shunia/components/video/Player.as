@@ -53,13 +53,16 @@ package me.shunia.components.video
 		}
 
 		protected function onConnected():void {
-			_video.visible = true;
-			_video.attachNetStream(_controller.stream);
-			volume = _volume;
+			if (_mode == MODE_PLAY) {
+				_video.visible = true;
+				_video.attachNetStream(_controller.stream);
+			}
 		}
 
 		protected function onStarted():void {
-
+			if (_mode == MODE_PLAY) {
+				volume = _volume;
+			}
 		}
 
 		protected function onClosed():void {
@@ -134,9 +137,7 @@ package me.shunia.components.video
 
 		public function seek(offset:int):void {
 			if (mode == MODE_PUBLISH) return;
-//			if (!_isRTMP) {
-//
-//			}
+			if (_isRTMP) return;
 		}
 
 		public function get playing():Boolean {
@@ -175,7 +176,7 @@ package me.shunia.components.video
 
 		public function set volume(value:int):void {
 			_volume = value;
-			if (_controller.stream) {
+			if (_controller.stream && _mode == MODE_PLAY) {
 				var st:SoundTransform = new SoundTransform(_volume / 100);
 				_controller.stream.soundTransform = st;
 			}
@@ -340,7 +341,7 @@ class Controller {
 		stopStream(true);
 		_firstBuff = false;
 
-		if (!stream) stream = new NetStream(connection);
+		stream = new NetStream(connection);
 //		stream.useHardwareDecoder = true;		// 硬件解码
 //		stream.bufferTime = 3;					// 3秒缓冲
 		stream.client = {};

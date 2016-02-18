@@ -1,6 +1,7 @@
 package me.shunia.components {
 	
 	import flash.display.DisplayObject;
+	import flash.events.Event;
 	
 	import me.shunia.components.utils.TwoD;
 	import me.shunia.components.visual.layout.GridLayout;
@@ -155,8 +156,10 @@ package me.shunia.components {
 		public var paddingRight:int = 0;
 		public var paddingTop:int = 0;
 		public var paddingBottom:int = 0;
-		
+
 	    public var elms:Array = null;
+		public var root:DisplayObject = null;
+		protected var _autoGap:Boolean = false;
 	    protected var _w:int = 0;
 		protected var _wDirty:Boolean = false;
 		protected var _h:int = 0;
@@ -175,9 +178,44 @@ package me.shunia.components {
 		 *  
 		 * @param rendered 更新完布局后的回调方法,Panel控件会依赖此回调来更新高度和宽度
 		 */		
-		public function Layout(rendered:Function = null) {
+		public function Layout(rendered:Function = null, root:DisplayObject = null) {
 			elms = [];
 			_rendered = rendered;
+			if (root) {
+				this.root = root;
+				if (!this.root.stage) {
+					this.root.addEventListener(Event.ADDED_TO_STAGE, onRootAddedToStage);
+				}
+			}
+		}
+
+		protected function onRootAddedToStage(e:Event):void {
+			if (root) root.removeEventListener(Event.ADDED_TO_STAGE, onRootAddedToStage);
+			if (autoGap) {
+				_lazyRender = false;
+				updateDisplay();
+			}
+		}
+
+		/**
+		 * 会有这种情况，当你生成一个layout的时候并不能完全确定它的gap固定应该是多少：
+		 * 比如有一个可变长度的Label和另外一个固定长度Label在同一个layout里。
+		 * 这时候可能想让两个Label把容器撑得尽量大（需要被上层容器的大小限制），从而
+		 * 自动动态的计算固定长度Label的位置，来保证该Layou输出的高度或者宽度是能支持
+		 * 的最大值，这个时候，可以使用该属性实现这个功能。
+		 *
+		 * 当设置此属性为true时，layout会自动根据当前width/height（需要主动设定）或者
+		 * 父容器的width/height（未主动设定当前高宽时），计算容器中剩余的空间，并平均
+		 * 分配到各个子对象的两侧。
+		 *
+		 * 一般情况下，这个属性最适用于两个对象被同时添加到HORIZONTAL或者VERTICAL布局当中。
+		 * */
+		public function set autoGap(value:Boolean):void {
+			_autoGap = value;
+		}
+
+		public function get autoGap():Boolean {
+			return _autoGap;
 		}
 	
 		public function set width(value:int):void {

@@ -58,7 +58,8 @@ package me.shunia.components.state {
 						}
 						try {
 							state.dataHandler.apply(null, args);
-						} catch (e:Error) {};
+						} catch (e:Error) {
+						}
 					}
 				}
 			}

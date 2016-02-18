@@ -16,6 +16,7 @@ package me.shunia.components
 		public static const ITEM_CHANGE:String = "itemChange";
 		public static const CHANGE:String = "change";
 		public static const ITEM_CLICK:String = "itemClick";
+		public static const COMPLETE:String = "complete";
 		
 		/**
 		 * 事件中附加的参数.全部组合到这个数据里. 

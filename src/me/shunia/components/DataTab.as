@@ -4,9 +4,9 @@ package me.shunia.components
 	import flash.display.DisplayObject;
 	import flash.utils.Dictionary;
 
-	import me.shunia.components.interfaces.IDataComponent;
+	import me.shunia.components.interfaces.IItemRenderHolder;
 
-	public class DataTab extends Tab implements IDataComponent
+	public class DataTab extends Tab implements IItemRenderHolder
 	{
 		
 		protected var _data:Array = null;
@@ -35,6 +35,10 @@ package me.shunia.components
 		public function set itemRenderer(value:Class):void {
 			// 这个控件暂时不支持设置ItemRender
 			buttonClass = value;
+		}
+
+		public function get itemRenderer():Class {
+			return _btnCls;
 		}
 
 		public function get labelField():String {

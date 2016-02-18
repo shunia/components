@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<project name="components" default="build.components" basedir="../">
+    <dirname property="current.components" file="${ant.file.components}"/>
+    <dirname property="sources.components" file="${current.components}/../"/>
+    
+    <echo message="[components] Compiling: "/>
+    <echo message="[components] Project root: ${sources.components}"/>
+
+    <!-- setup FLEX_HOME -->
+    <import file="${current.components}/flex-home.xml"/>
+
+    <!-- setup build environment-->
+    <property name="deploy.dir.components" value="${sources.components}/bin"/>
+    <property name="deploy.name.components" value="components.swc"/>
+
+    <!-- setup dependencies - nothing here -->
+
+    <!-- setup other properties -->
+    <property name="output.components" value="${deploy.dir.components}"/>
+
+    <!-- default task -->
+    <target name="build.components" depends="clean.components, compile.components"/>
+
+    <!-- task clean -->
+    <target name="clean.components">
+        <delete dir="${deploy.dir.components}"/>
+        <mkdir dir="${deploy.dir.components}"/>
+    </target>
+
+    <!-- task compile -->
+    <target name="compile.components">
+        <compc output="${deploy.dir.components}/${deploy.name.components}" failonerror="true" maxmemory="1024m">
+            <include-sources dir="${sources.components}/src" includes="*"/>
+        </compc>
+        <echo message="[components] Output file: ${deploy.dir.components}/${deploy.name.components}"/>
+    </target>
+</project>

@@ -33,7 +33,7 @@ package me.shunia.components.visual.layout
 			// 相对的,row表明应该在整体上使用横向布局,而单行里面采用纵向布局:
 			// 		1, 3, 5, 7, 9
 			//		2, 4, 6, 8, 10
-			if (l.row > 0 || l.maxRow > 0) {
+			if (l.row > 0) {
 				return rowLayout(l);
 			} else {
 				return columnLayout(l);

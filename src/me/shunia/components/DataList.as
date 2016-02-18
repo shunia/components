@@ -6,7 +6,7 @@ package me.shunia.components
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 
-	import me.shunia.components.interfaces.IDataComponent;
+	import me.shunia.components.interfaces.IItemRenderHolder;
 	import me.shunia.components.interfaces.IItemRender;
 	import me.shunia.components.utils.Side;
 	import me.shunia.components.visual.layout.LayoutUtil;
@@ -18,7 +18,7 @@ package me.shunia.components
 	 *  
 	 * @author qingfenghuang
 	 */	
-	public class DataList extends List implements IDataComponent
+	public class DataList extends List implements IItemRenderHolder
 	{
 		
 		protected var _data:Array = null;
@@ -48,6 +48,9 @@ package me.shunia.components
 		}
 		
 		protected function onRemoved(e:Event):void {
+			// 强制清除选中项的样式
+			if (_selectedItem) _selectedItem.onMouseOut();
+
 			removeEventListener(Event.REMOVED_FROM_STAGE, onRemoved);
 			addEventListener(Event.ADDED_TO_STAGE, onAdded);
 			
@@ -67,6 +70,10 @@ package me.shunia.components
 		
 		public function set itemRenderer(value:Class):void {
 			_render = value;
+		}
+
+		public function get itemRenderer():Class {
+			return _render;
 		}
 		
 		public function set data(value:Array):void {
@@ -90,15 +97,23 @@ package me.shunia.components
 					// 越界了,限制到界内
 					_selectedIndex = elements.length - 1;
 				}
-				if (_selectedIndex == -1) _item = null;
-				else _item = elements[_selectedIndex];
-				
-				onClick(null);
+
+				onIndexChange();
 			}
+		}
+
+		protected function onIndexChange():void {
+			if (_selectedIndex == -1) _item = null;
+			else _item = elements[_selectedIndex];
+
+			_selectedItem = _item;
+			if (_selectedItem) _selectedItem.onMouseOut();
+
+			dispatchEvent(new CompEvents(CompEvents.CHANGE, true));
 		}
 		
 		public function get selectedIndex():int {
-			return _selectedItem ? elements.indexOf(_selectedItem) : -1;
+			return _selectedIndex;
 		}
 		
 		public function get selectedItem():IItemRender {
@@ -312,15 +327,16 @@ package me.shunia.components
 		}
 		
 		protected function onClick(e:MouseEvent):void {
-			if (_item) _selectedItem = _item;
-			if (_selectedItem && e) {
+			if (_item) {
+				_selectedItem = _item;
 				_selectedItem.onMouseClick();
-				dispatchEvent(new CompEvents(CompEvents.ITEM_CLICK));
+				selectedIndex = elements.indexOf(_item);
+				dispatchEvent(new CompEvents(CompEvents.ITEM_CLICK, true));
 			}
 		}
 		
 		protected function onRender(item:IItemRender):void {
-			var e:CompEvents = new CompEvents(CompEvents.ITEM_CHANGE);
+			var e:CompEvents = new CompEvents(CompEvents.ITEM_CHANGE, true);
 			e.params = [item];
 			dispatchEvent(e);
 		}

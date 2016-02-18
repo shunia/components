@@ -21,7 +21,7 @@ package me.shunia.components.visual.layout
 		 * @return 高宽
 		 */	
 		public static function layout(l:Layout):TwoD {
-			return layoutInternal(l.elms, LayoutUtil.getPadding(l), l.vGap);
+			return layoutInternal(l.elms, LayoutUtil.getPadding(l), LayoutUtil.getGap(l, Layout.VERTICAL));
 		}
 		
 		/**

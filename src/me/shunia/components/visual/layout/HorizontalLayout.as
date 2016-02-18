@@ -4,6 +4,7 @@ package me.shunia.components.visual.layout
 	import me.shunia.components.Layout;
 	import me.shunia.components.utils.Side;
 	import me.shunia.components.utils.TwoD;
+	import me.shunia.components.visual.layout.LayoutUtil;
 
 	/**
 	 * 横向布局计算器
@@ -22,7 +23,9 @@ package me.shunia.components.visual.layout
 		 * @return 高宽
 		 */	
 		public static function layout(l:Layout):TwoD {
-			return layoutInternal(l.elms, LayoutUtil.getPadding(l), l.hGap);
+			var g:int = LayoutUtil.getGap(l, Layout.HORIZONTAL);
+			if (g != l.hGap) trace(l.hGap + "=>" + g);
+			return layoutInternal(l.elms, LayoutUtil.getPadding(l), g);
 		}
 		
 		/**

@@ -115,10 +115,12 @@ package me.shunia.components
 			if (_props.hasProp(P_LIST)) {
 				if (_list) {
 					_list.removeEventListener(CompEvents.ITEM_CLICK, onItemClicked);
+					_list.removeEventListener(CompEvents.CHANGE, onItemClicked);
 					_item = null;
 				}
 				_list = _props.safeProp(P_LIST, _list);
 				_list.addEventListener(CompEvents.ITEM_CLICK, onItemClicked);
+				_list.addEventListener(CompEvents.CHANGE, onItemClicked);
 			}
 			// 上下拉箭头
 			if (_props.hasProp(P_ASSET_DROP_BTN)) _dropBtn = _props.safeProp(P_ASSET_DROP_BTN, _dropBtn);
@@ -236,7 +238,7 @@ package me.shunia.components
 		}
 		
 		public function hideDropDown():void {
-			if (stage.contains(_list)) stage.removeChild(_list);
+			if (stage && stage.contains(_list)) stage.removeChild(_list);
 			_isDropingDown = false;
 			
 			onDropBtnChange();

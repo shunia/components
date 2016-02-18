@@ -3,7 +3,7 @@ package me.shunia.components
 
 	import flash.display.DisplayObject;
 
-	import me.shunia.components.interfaces.IDataComponent;
+	import me.shunia.components.interfaces.IItemRenderHolder;
 	import me.shunia.components.interfaces.IItemRender;
 	import me.shunia.components.utils.PropConfig;
 
@@ -13,7 +13,7 @@ package me.shunia.components
 	 *  
 	 * @author qingfenghuang
 	 */	
-	public class Pager extends Panel implements IDataComponent
+	public class Pager extends Panel implements IItemRenderHolder
 	{
 		
 		/**
@@ -85,11 +85,25 @@ package me.shunia.components
 				update();
 			}
 		}
-		
-		public function get page():int {
-			return _pNum;
+
+		public function get itemRenderer():Class {
+			return _contentRender;
 		}
 		
+		public function get totalPage():int {
+			return _pNum;
+		}
+
+		public function get currentPage():int {
+			return _currentPage;
+		}
+
+		public function set currentPage(value:int):void {
+			_currentPage = value;
+			if (_currentPage > _pNum) _currentPage = _pNum;
+			else if (_currentPage < 0) _currentPage = 0;
+		}
+
 		public function setProp(k:String, v:*):Pager {
 			_props.setProp(k, v);
 			return this;

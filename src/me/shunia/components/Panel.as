@@ -21,7 +21,7 @@ package me.shunia.components {
 		/**
 		 * Panel用Layout来进行布局计算,这就是该layout的定义.
 		 */		
-	    protected var _layout:Layout = new Layout(paint);
+	    protected var _layout:Layout = null;
 		/**
 		 * 可以启动debug模式来观察该控件的实际区域 
 		 */		
@@ -39,10 +39,6 @@ package me.shunia.components {
 		 */		
 		protected var _bg:DisplayObject = null;
 		/**
-		 * 设置位图数据当背景 
-		 */		
-		protected var _bgGraphic:BitmapData = null;
-		/**
 		 * debug的时候用来画背景的颜色 
 		 */		
 		protected var _defaultPaintColor:uint = 0;
@@ -50,7 +46,11 @@ package me.shunia.components {
 		 * debug的时候用来画背景的透明度 
 		 */		
 		protected var _defaultPaintAlpha:Number = 0;
-		
+
+		public function Panel() {
+			_layout = new Layout(paint, this);
+		}
+
 		public function set lazyRender(value:Boolean):void {
 			_layout._lazyRender = value;
 		}

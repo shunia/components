@@ -28,14 +28,21 @@ package me.shunia.components
 		}
 		
 		public function set url(value:String):void {
-			if (value && value != _url) {
-				_url = value;
-				load();
+			if (value != _url) {
+				removeAll();
+				if (value) {
+					_url = value;
+					load();
+				}
 			}
 		}
 		
 		public function get url():String {
 			return _url;
+		}
+
+		public function get source():DisplayObject {
+			return _source;
 		}
 		
 		protected function load():void {
@@ -50,6 +57,8 @@ package me.shunia.components
 				removeAll();
 				fitSource();
 				add(_source);
+
+				dispatchEvent(new CompEvents(CompEvents.COMPLETE));
 			}
 		}
 		
