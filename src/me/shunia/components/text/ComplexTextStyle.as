@@ -9,7 +9,7 @@ package me.shunia.components.text {
 		
 		public var vertical:Boolean = true;
 		public var rotation:String = "horizontal"; // horizontal / vertical
-		public var width:int = 0;
+		public var width:int = 100;
 		public var height:int = 0;
 		
 		public var renderTick:int = 0;

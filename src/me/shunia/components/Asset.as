@@ -1,7 +1,10 @@
 package me.shunia.components
 {
 	
+	import com.worlize.gif.GIFPlayer;
+
 	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
 	
 	import me.shunia.components.utils.AssetLoader;
 	
@@ -78,6 +81,16 @@ package me.shunia.components
 			if (_source && _source.width != width && _source.height != height) {
 				_source.width = width;
 				_source.height = height;
+			}
+		}
+
+		override public function set visible(value:Boolean):void {
+			super.visible = value;
+
+			// 这里为影片剪辑和gif写一个优化
+			if (source && (source is MovieClip || source is GIFPlayer)) {
+				if (visible) source["gotoAndPlay"](1);
+				else source["gotoAndStop"](1);
 			}
 		}
 		

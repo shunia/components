@@ -12,10 +12,13 @@ package me.shunia.components
 	 */	
 	public class CompEvents extends Event
 	{
-		
-		public static const ITEM_CHANGE:String = "itemChange";
-		public static const CHANGE:String = "change";
+
 		public static const ITEM_CLICK:String = "itemClick";
+		public static const ITEM_UPDATE:String = "itemChange";
+		public static const ITEM_OVER:String = "itemOver";
+		public static const ITEM_OUT:String = "itemOut";
+
+		public static const CHANGE:String = "change";
 		public static const COMPLETE:String = "complete";
 		
 		/**

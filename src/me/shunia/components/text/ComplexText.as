@@ -273,6 +273,8 @@ class ComplexTextLineGraphicImplementation extends ComplexTextLineImplementation
 
 	public function setContent(value:DisplayObject):IComplexTextLineGraphic {
 		content = value;
+		width = content.width;
+		height = content.height;
 		return this;
 	}
 

@@ -309,12 +309,12 @@ package me.shunia.components
 					}
 				}
 				if (d) {
-					if (_item != d) 
-						if (_item) _item.onMouseOut();
-					d.onMouseOver();
+					if (_item != d)
+						onOutItem(_item)
+					onOverItem(d);
 					_item = d;
 				} else {
-					if (_item) _item.onMouseOut();
+					onOutItem(_item);
 					_item = null;
 					_selectedItem = null;
 				}
@@ -322,8 +322,26 @@ package me.shunia.components
 		}
 		
 		protected function onOut(e:MouseEvent):void {
-			if (_item) _item.onMouseOut();
+			onOutItem(_item);
 			removeEventListener(MouseEvent.MOUSE_MOVE, onMove);
+		}
+
+		protected function onOverItem(item:IItemRender):void {
+			if (item) {
+				item.onMouseOver();
+				var e:CompEvents = new CompEvents(CompEvents.ITEM_OVER, true);
+				e.params = [item];
+				dispatchEvent(e);
+			}
+		}
+
+		protected function onOutItem(item:IItemRender):void {
+			if (item) {
+				item.onMouseOut();
+				var e:CompEvents = new CompEvents(CompEvents.ITEM_OUT, true);
+				e.params = [item];
+				dispatchEvent(e);
+			}
 		}
 		
 		protected function onClick(e:MouseEvent):void {
@@ -331,12 +349,14 @@ package me.shunia.components
 				_selectedItem = _item;
 				_selectedItem.onMouseClick();
 				selectedIndex = elements.indexOf(_item);
-				dispatchEvent(new CompEvents(CompEvents.ITEM_CLICK, true));
+				var ce:CompEvents = new CompEvents(CompEvents.ITEM_CLICK, true);
+				ce.params = [_selectedItem];
+				dispatchEvent(ce);
 			}
 		}
 		
 		protected function onRender(item:IItemRender):void {
-			var e:CompEvents = new CompEvents(CompEvents.ITEM_CHANGE, true);
+			var e:CompEvents = new CompEvents(CompEvents.ITEM_UPDATE, true);
 			e.params = [item];
 			dispatchEvent(e);
 		}

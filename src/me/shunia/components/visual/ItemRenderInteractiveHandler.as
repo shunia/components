@@ -108,7 +108,9 @@ package me.shunia.components.visual {
 				if (_onItemClickCb != null) {
 					_onItemClickCb.apply(_target, [_item]);
 				}
-				component.dispatchEvent(new CompEvents(CompEvents.ITEM_CLICK, true));
+				var ce:CompEvents = new CompEvents(CompEvents.ITEM_CLICK, true);
+				ce.params = [_item];
+				component.dispatchEvent(ce);
 			}
 		}
 
@@ -119,10 +121,8 @@ package me.shunia.components.visual {
 		}
 
 		protected function onTargetOut(e:MouseEvent):void {
-			if (_item) {
-				_item.onMouseOut();
-				_item = null;
-			}
+			onItemOut(_item);
+			_item = null;
 			component.removeEventListener(MouseEvent.MOUSE_MOVE, onTargetMove);
 		}
 
@@ -144,13 +144,31 @@ package me.shunia.components.visual {
 				}
 				if (d) {
 					if (_item != d)
-						if (_item) _item.onMouseOut();
-					d.onMouseOver();
+						onItemOut(_item);
+					onItemOver(d);
 					_item = d;
 				} else {
-					if (_item) _item.onMouseOut();
+					onItemOut(_item);
 					_item = null;
 				}
+			}
+		}
+
+		protected function onItemOut(item:IItemRender):void {
+			if (item) {
+				item.onMouseOut();
+				var e:CompEvents = new CompEvents(CompEvents.ITEM_OUT, true);
+				e.params = [item];
+				component.dispatchEvent(e);
+			}
+		}
+
+		protected function onItemOver(item:IItemRender):void {
+			if (item) {
+				item.onMouseOver();
+				var e:CompEvents = new CompEvents(CompEvents.ITEM_OVER, true);
+				e.params = [item];
+				component.dispatchEvent(e);
 			}
 		}
 
