@@ -131,6 +131,7 @@ package me.shunia.components.text {
 }
 
 import flash.display.DisplayObject;
+import flash.events.EventDispatcher;
 import flash.text.engine.ContentElement;
 import flash.text.engine.ElementFormat;
 import flash.text.engine.FontDescription;
@@ -301,6 +302,10 @@ class ComplexTextLineGraphicImplementation extends ComplexTextLineImplementation
 
 class ComplexTextLineRender {
 
+	internal static function get eventMirror():EventDispatcher {
+		return null;
+	}
+
 	internal static function render(line:*, style:ComplexTextStyle):DisplayObject {
 		var p:Panel = setUpTextLineContainer(style);
 		var t:TextBlock = setUpTextLineCreator(style);
@@ -361,6 +366,7 @@ class ComplexTextLineRender {
 	protected static function configToElement(config:IComplexTextLine, style:ComplexTextStyle):ContentElement {
 		var fds:FontDescription = null;
 		var fmt:ElementFormat = null;
+		var elm:ContentElement = null;
 		if (config is IComplexTextLineText) {
 			var textConfig:ComplexTextLineTextImplementation = config as ComplexTextLineTextImplementation;
 			if (textConfig && textConfig.content) {
@@ -368,7 +374,7 @@ class ComplexTextLineRender {
 						textConfig.fontFamily ? textConfig.fontFamily : style.fontFamily,
 						textConfig.fontBold ? "bold" : "normal");
 				fmt = new ElementFormat(fds, textConfig.fontSize, textConfig.fontColor);
-				return new TextElement(textConfig.content, fmt);
+				elm = new TextElement(textConfig.content, fmt);
 			}
 		} else if (config is IComplexTextLineGraphic) {
 			var graphicConfig:ComplexTextLineGraphicImplementation = config as ComplexTextLineGraphicImplementation;
@@ -376,10 +382,14 @@ class ComplexTextLineRender {
 				fds = new FontDescription(style.fontFamily, style.fontBold ? FontWeight.BOLD : FontWeight.NORMAL);
 				fmt = new ElementFormat(fds, style.fontSize, style.fontColor);
 				fmt.alignmentBaseline = TextBaseline.DESCENT;
-				return new GraphicElement(graphicConfig.content, graphicConfig.width, graphicConfig.height, fmt);
+				elm = new GraphicElement(graphicConfig.content, graphicConfig.width, graphicConfig.height, fmt);
 			}
 		}
-		return null;
+
+		elm.userData = config;
+		elm.eventMirror = eventMirror;
+
+		return elm;
 	}
 
 }
