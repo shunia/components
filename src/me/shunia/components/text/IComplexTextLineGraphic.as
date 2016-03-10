@@ -19,6 +19,16 @@ package me.shunia.components.text {
 
 		function setHeight(value:Number):IComplexTextLineGraphic;
 
+		function getContent():DisplayObject;
+
+		function getLink():String;
+
+		function getLinkHandler():Function;
+
+		function getWidth():Number;
+
+		function getHeight():Number;
+
 	}
 	
 }

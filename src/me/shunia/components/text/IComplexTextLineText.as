@@ -27,6 +27,26 @@ package me.shunia.components.text {
 
 		function setUnderLineColor(value:uint):IComplexTextLineText;
 
+		function getContent():String;
+
+		function getLink():String;
+
+		function getLinkHandler():Function;
+
+		function getFontFamily():String;
+
+		function getFontSize():int;
+
+		function getFontColor():uint;
+
+		function getFontBold():Boolean;
+
+		function getFontItalic():Boolean;
+
+		function getUnderLine():Boolean;
+
+		function getUnderLineColor():uint;
+
 	}
 	
 }
