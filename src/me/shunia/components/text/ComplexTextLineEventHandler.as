@@ -98,11 +98,11 @@ package me.shunia.components.text {
 							style.underLineColor;
 					underLineHolder.graphics.lineStyle(style.underLineThickness, color);
 					if (style.vertical) {
-						underLineHolder.graphics.moveTo(region.bounds.x, region.bounds.height);
-						underLineHolder.graphics.lineTo(region.bounds.width, region.bounds.height);
+						underLineHolder.graphics.moveTo(region.bounds.left, region.bounds.bottom);
+						underLineHolder.graphics.lineTo(region.bounds.right, region.bounds.bottom);
 					} else {
-						underLineHolder.graphics.moveTo(region.bounds.x, region.bounds.y);
-						underLineHolder.graphics.lineTo(region.bounds.x, region.bounds.height);
+						underLineHolder.graphics.moveTo(region.bounds.left, region.bounds.top);
+						underLineHolder.graphics.lineTo(region.bounds.left, region.bounds.bottom);
 					}
 				}
 				return underLineHolder;
