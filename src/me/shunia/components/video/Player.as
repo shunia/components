@@ -294,14 +294,18 @@ class Controller {
 
 		switch (e.info.code) {
 			case "NetConnection.Connect.Success" :
-				initStream();
-				invoke(STATUS_CONNECTED);
-
-				// 根据推拉流标记决定是拉流还是推流
-				if (_publish) {
-					stream.publish(_mountPoint);
+				if (!connection.connected) {
+					connection.connect(_link);
 				} else {
-					stream.play(_mountPoint);
+					initStream();
+					invoke(STATUS_CONNECTED);
+
+					// 根据推拉流标记决定是拉流还是推流
+					if (_publish) {
+						stream.publish(_mountPoint);
+					} else {
+						stream.play(_mountPoint);
+					}
 				}
 				break;
 			default :
